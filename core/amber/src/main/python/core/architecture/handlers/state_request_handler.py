@@ -1,3 +1,5 @@
+import pickle
+
 from proto.edu.uci.ics.amber.engine.architecture.worker import (
     StateRequestV2,
     StateReturn,
@@ -16,5 +18,5 @@ class StateRequestHandler(Handler):
         # the state can only be request once and cleared after the request.
         del context.debug_manager.states[state_key]
 
-        # can use pickle to serialize the state instead.
-        return StateReturn(bytes=str(state))
+
+        return StateReturn(bytes=pickle.dumps(state))

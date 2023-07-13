@@ -33,7 +33,7 @@ message EvaluatedValue {
 }
 
 message StateReturn {
-  string bytes = 1;
+  bytes bytes = 1;
 }
 
 message ControlReturnV2 {

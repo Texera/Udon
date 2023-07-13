@@ -125,12 +125,12 @@ class MainLoop(StoppableQueueBlockingRunnable):
 
             # examples:
             self.simulate_debug_command(
-                f"b 20, 'Udon' in tuple_['text'] and 'welcome' in tokens"
+                "b 20, 'Udon' in tuple_['text'] and 'welcome' in tokens"
             )
-            self.simulate_debug_command(
-                f"rs 20 22 tokens "
-                f"PythonUDFV2-operator-8c277eca-adb7-4b4f-866c-3e8950535ef1-main"
-            )
+            # self.simulate_debug_command(
+            #     "rs 20 22 tokens "
+            #     "PythonUDFV2-operator-8c277eca-adb7-4b4f-866c-3e8950535ef1-main"
+            # )
         match(
             next_entry,
             DataElement,
@@ -201,10 +201,9 @@ class MainLoop(StoppableQueueBlockingRunnable):
 
     def handle_state_return(self, state_name, state_return: StateReturn):
         import pickle
-
         self.context.tuple_processing_manager.output_iterator.gi_frame.f_locals[
             state_name
-        ] = eval(state_return.bytes)
+        ] = pickle.loads(state_return.bytes)
         self._resume_dp()
 
     def report_exception(self, exc_info: ExceptionInfo) -> None:

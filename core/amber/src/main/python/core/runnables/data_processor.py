@@ -1,10 +1,11 @@
 import sys
 from threading import Event
+from typing import Optional
 
 from loguru import logger
 
 from core.architecture.managers import Context
-from core.models import Tuple
+from core.models import Tuple, TupleLike
 from core.util import Stoppable
 from core.util.console_message.replace_print import replace_print
 from core.util.runnable.runnable import Runnable
@@ -56,20 +57,14 @@ class DataProcessor(Runnable, Stoppable):
                 )
                 with replace_print(self._context.console_message_manager.print_buf):
                     for output in output_iterator:
-                        if isinstance(output, str):
-                            self._context.tuple_processing_manager.current_output_tuple = (
-                                output
-                            )
+                        if not isinstance(output, str):
+                            # the output is a TupleLike
+
+                            ret = self.create_output_tuple(output)
                         else:
-                            output_tuple = None if output is None else Tuple(output)
-                            if output_tuple is not None:
-                                schema = (
-                                    self._context.operator_manager.operator.output_schema
-                                )
-                                output_tuple.finalize(schema)
-                            self._context.tuple_processing_manager.current_output_tuple = (
-                                output_tuple
-                            )
+                            # the output is a state transfer statement
+                            ret = output
+                        self._context.tuple_processing_manager.current_output = ret
 
                         self._switch_context()
 
@@ -106,3 +101,9 @@ class DataProcessor(Runnable, Stoppable):
 
     def stop(self):
         self._running.clear()
+
+    def create_output_tuple(self, output: TupleLike) -> Optional[Tuple]:
+        output_tuple = None if output is None else Tuple(output)
+        if output_tuple is not None:
+            output_tuple.finalize(self._context.operator_manager.operator.output_schema)
+        return output_tuple
