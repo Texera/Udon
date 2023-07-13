@@ -4,7 +4,7 @@ from bdb import Breakpoint
 from pdb import Pdb
 from threading import Condition
 
-from typing import List, Optional, Dict
+from typing import Optional, Dict
 
 from core.architecture.managers.operator_manager import OperatorManager
 from loguru import logger

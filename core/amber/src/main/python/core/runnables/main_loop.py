@@ -201,6 +201,7 @@ class MainLoop(StoppableQueueBlockingRunnable):
 
     def handle_state_return(self, state_name, state_return: StateReturn):
         import pickle
+
         self.context.tuple_processing_manager.output_iterator.gi_frame.f_locals[
             state_name
         ] = pickle.loads(state_return.bytes)

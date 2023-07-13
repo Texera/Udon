@@ -18,5 +18,4 @@ class StateRequestHandler(Handler):
         # the state can only be request once and cleared after the request.
         del context.debug_manager.states[state_key]
 
-
         return StateReturn(bytes=pickle.dumps(state))
