@@ -121,61 +121,16 @@ class MainLoop(StoppableQueueBlockingRunnable):
         if isinstance(
             next_entry, DataElement
         ) and self.context.state_manager.confirm_state(WorkerState.READY):
+            # add simulated debug comments here - for experimental purpose
+
+            # examples:
             self.simulate_debug_command(
-                f"b 20, 'does not exist' in tuple_['text'] and 'Even' in tokens"
+                f"b 20, 'Udon' in tuple_['text'] and 'welcome' in tokens"
             )
             self.simulate_debug_command(
                 f"rs 20 22 tokens "
                 f"PythonUDFV2-operator-8c277eca-adb7-4b4f-866c-3e8950535ef1-main"
             )
-
-            #
-            # if 'TypeCasting' in self.context.tuple_processing_manager.my_upstream_id \
-            #         .operator:  # second UDF
-            #     # control_command = set_one_of(
-            #     #     ControlCommandV2,
-            #     #     WorkerDebugCommandV2(
-            #     #         cmd=f"rs 12 22 tokens"
-            #     #
-            #     #     ),
-            #     # )
-            #     # self._async_rpc_client.send(
-            #     #     ActorVirtualIdentity(name="SELF"), control_command
-            #     # )
-            #     # self._pause_dp()
-            #     # self._check_and_process_control()
-            #     # self._switch_context()
-            #     pass
-            # if 'Filter-operator-83cbcb7e-4c55-44b0-bab2-89e27904d657' in \
-            #     self.context.tuple_processing_manager.my_upstream_id.operator:  # first UDF
-            # # control_command = set_one_of(
-            # #     ControlCommandV2,
-            # #     WorkerDebugCommandV2(
-            # #         cmd=f"as 22 tokens"
-            # #
-            # #     ),
-            # # )
-            # # self._async_rpc_client.send(
-            # #     ActorVirtualIdentity(name="SELF"), control_command
-            # # )
-            # # self._pause_dp()
-            # # self._check_and_process_control()
-            # # self._switch_context()
-            # logger.info("ss for first UDF")
-            # control_command = set_one_of(
-            #     ControlCommandV2,
-            #     WorkerDebugCommandV2(
-            #         cmd=f"ss 22 tokens"
-            #
-            #     ),
-            # )
-            # self._async_rpc_client.send(
-            #     ActorVirtualIdentity(name="SELF"), control_command
-            # )
-            # self._pause_dp()
-            # self._check_and_process_control()
-            # self._switch_context()
-            pass
         match(
             next_entry,
             DataElement,
@@ -495,8 +450,9 @@ class MainLoop(StoppableQueueBlockingRunnable):
     def handle_state_transfer_statements(self, statement: str):
         if "request(" in statement:
             # request state
-            target_worker_id, line_no, state_name = statement.strip("request(").strip(
-                ")").split(",")
+            target_worker_id, line_no, state_name = (
+                statement.strip("request(").strip(")").split(",")
+            )
 
             control_command = set_one_of(
                 ControlCommandV2,

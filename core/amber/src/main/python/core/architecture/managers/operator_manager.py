@@ -203,11 +203,13 @@ class OperatorManager:
         code_after = old_code[lineno:]
 
         indentation = " " * (len(target_line) - len(target_line.lstrip()))
-        bp_line = f"{indentation}yield 'request({target_worker_id}, {req_lineno}," \
-                  f" {req_state})'"
+        bp_line = (
+            f"{indentation}yield 'request({target_worker_id}, {req_lineno},"
+            f" {req_state})'"
+        )
 
         new_code = "\n".join(code_before + [bp_line, target_line] + code_after)
-        logger.info ("new code \n:" + new_code)
+        logger.info("new code \n:" + new_code)
         # print(new_code, file=sys.stdout)
         return new_code
 

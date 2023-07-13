@@ -56,9 +56,10 @@ class DataProcessor(Runnable, Stoppable):
                 )
                 with replace_print(self._context.console_message_manager.print_buf):
                     for output in output_iterator:
-
                         if isinstance(output, str):
-                            self._context.tuple_processing_manager.current_output_tuple = output
+                            self._context.tuple_processing_manager.current_output_tuple = (
+                                output
+                            )
                         else:
                             output_tuple = None if output is None else Tuple(output)
                             if output_tuple is not None:
