@@ -13,6 +13,7 @@ Udon-enabled Texera, enabling Python UDF.
 
 ## Udon components
 
+### Two-thread execution model
 Udon executes Python UDFs with a two-thread model.
 
 - [Data processing thread](https://github.com/Texera/Udon/blob/master/core/amber/src/main/python/core/runnables/data_processor.py)
@@ -29,12 +30,34 @@ There are the following configurations:
 | OP1_ENABLED                 | Bool | False         | Enables OP1, to hot-swap UDF code                            |
 | OP2_ENABLED                 | Bool | False         | Enables OP2, to pull up predicates                           |
 
+### SingleBlockingIO
+The customized IO that supports:
+-Transferring one message at a time, from producer to consumer.
+-Blocking readline() when no message is available.
+-Whenever being blocked, it switches between producer and consumer.
+
+With the `SingleBlockingIO`, we achieved the context switch between the control processing (aka, `main_loop`) and data processing threads.
+
+### Debug-related Messages (Command and Event)
+- `DebugCommand`: a message from the user to the debugger, instructing an operation in the debugger, expecting no response from the debugger.
+- `DebugEvent`: a message from the debugger to the user, which could be a reply to a DebugCommand or an event triggered in the debugger (e.g., hit a breakpoint, exception).
+
+### Debug Command and Debug Event Life Cycle
+The global picture of the debug-related messages exchange life cycle is shown below:
+<img width="979" alt="Screenshot 2022-12-05 at 21 23 35" src="https://user-images.githubusercontent.com/17627829/205823569-00e1a53a-90f5-43c1-a686-77187343d4c7.png">
+
 ***
 
-## Play with Udon
+## Play with Udon (in production)
+
 
 Udon supports actual control messages from the controller, which requires the user to manually input debug comments from
-the Python UDF console. For demonstration and experiment purposes, we simulate debug instructions inside the control
+the Python UDF console. 
+
+***
+
+## Play with Udon (for experiments)
+For demonstration and experiment purposes, we simulate debug instructions inside the control
 processing thread. We provided a method `simulate_debug_command` to send arbitrary debug command to the target Python
 UDF worker.
 
@@ -67,6 +90,23 @@ self.simulate_debug_command(
     "PythonUDFV2-operator-8c277eca-adb7-4b4f-866c-3e8950535ef1-main"
 )
 ```
+For active transfer:
+- AppendState. `as lineno state_name` Append the line state specified by the state lineno and state name to downstream operators.
+
+For passive transfer:
+- StoreState. `ss lineno state_name` Store the line state specified by the state lineno and state name for future reference.
+- RequestState. `rs lineno state_lineno state_name target_worker_id` Request the state specified by the state lineno and state name from the target upstream worker, when processes to lineno.
+
+
+
+***
+
+## Example workflows for experimental purpose.
+
+- UDF1 // todo add json and explanation here
+- ...
+
+
 
 ## Acknowledgements
 
