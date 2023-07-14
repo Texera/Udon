@@ -124,13 +124,20 @@ class MainLoop(StoppableQueueBlockingRunnable):
             # add simulated debug comments here - for experimental purpose
 
             # examples:
-            self.simulate_debug_command(
-                "b 20, 'Udon' in tuple_['text'] and 'welcome' in tokens"
-            )
+
+            # add a breakpoint
+            # self.simulate_debug_command(
+            #     "b 20, 'Udon' in tuple_['text'] and 'welcome' in tokens"
+            # )
+
+            # add a state transfer (active request)
             # self.simulate_debug_command(
             #     "rs 20 22 tokens "
             #     "PythonUDFV2-operator-8c277eca-adb7-4b4f-866c-3e8950535ef1-main"
             # )
+
+            pass
+
         match(
             next_entry,
             DataElement,
