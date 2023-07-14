@@ -4,7 +4,7 @@
 
 ***
 
-## Udon instruction
+## Get Started
 
 Please follow [Guide to Develop Texera](https://github.com/Texera/texera/wiki/Guide-for-Developers) to install the
 Udon-enabled Texera, enabling Python UDF.
