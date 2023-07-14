@@ -1,6 +1,6 @@
 <h1 align="center">Udon: Efficient Debugging of User-Defined Functions in Big Data Systems with Line-by-Line Control</h1>
 
-<img src="core/new-gui/src/assets/logos/full_logo_small.png" alt="texera-logo" width="100px" height="60px"/> Udon builts on Texera, a collaborative data analytics workflow system.
+<img src="core/new-gui/src/assets/logos/full_logo_small.png" alt="texera-logo" width="96px" height="54.5px"/> Udon builds on top of Texera, a collaborative data analytics workflow system.
 
 ***
 
