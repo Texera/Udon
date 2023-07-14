@@ -78,7 +78,6 @@ class ArrowTableTupleProvider:
             if (
                 field_type == pyarrow.binary()
                 and value is not None
-                and value is not None
                 and value[:6] == b"pickle"
             ):
                 value = pickle.loads(value[10:])

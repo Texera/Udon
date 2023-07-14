@@ -12,7 +12,7 @@ class TupleProcessingManager:
         self.current_input_tuple_iter: Optional[
             Iterator[Union[Tuple, InputExhausted]]
         ] = None
-        self.current_output_tuple: Optional[Tuple] = None
+        self.current_output: Optional[Union[Tuple, str]] = None
         self.input_link_map: Mapping[LinkIdentity, int] = dict()
         self._context_switch_condition: Condition = Condition()
         self._context_switch_condition_with_no_pdb: Condition = Condition()
@@ -21,8 +21,8 @@ class TupleProcessingManager:
         self.my_id = None
         self.my_upstream_id: LayerIdentity = None
 
-    def get_output_tuple(self) -> Optional[Tuple]:
-        ret, self.current_output_tuple = self.current_output_tuple, None
+    def get_output(self) -> Optional[Union[Tuple, str]]:
+        ret, self.current_output = self.current_output, None
         return ret
 
     @property

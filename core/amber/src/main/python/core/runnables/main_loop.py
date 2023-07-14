@@ -60,7 +60,6 @@ class MainLoop(StoppableQueueBlockingRunnable):
         threading.Thread(
             target=self.data_processor.run, daemon=True, name="data_processor_thread"
         ).start()
-        self.breakpoints_to_add = 1
         self.main_loop_start_time = time.time()
 
     def complete(self) -> None:
@@ -184,7 +183,6 @@ class MainLoop(StoppableQueueBlockingRunnable):
                 ) in self.context.tuple_to_batch_converter.tuple_to_batch(output_tuple):
                     batch.schema = self.context.operator_manager.operator.output_schema
                     self._output_queue.put(DataElement(tag=to, payload=batch))
-        # self.context.debug_manager.check_and_swap_for_static_breakpoints()
 
     def process_tuple_with_udf(self) -> Iterator[Optional[Tuple]]:
         """
@@ -200,7 +198,7 @@ class MainLoop(StoppableQueueBlockingRunnable):
         while not finished_current.is_set():
             self._check_and_process_control()
             self._switch_context()
-            output = self.context.tuple_processing_manager.get_output_tuple()
+            output = self.context.tuple_processing_manager.get_output()
             if isinstance(output, str):
                 self.handle_state_transfer_statements(output)
             else:

@@ -39,7 +39,6 @@ class AsyncRPCClient:
             ControlPayloadV2,
             ControlInvocationV2(self._send_sequences[to], command=control_command),
         )
-        # logger.info("sent " + str(payload) + " to " + str(to))
         self._output_queue.put(ControlElement(tag=to, payload=payload))
         return self._create_future(to)
 
