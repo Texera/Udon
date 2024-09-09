@@ -22,7 +22,9 @@ The remaining of the guide will be structured in the following sections:
 
 1. Get Started
 2. Udon Components Overview
-3. Reproduce experiments
+3. Play with Udon (in production)
+4. Play with Udon (for experiments)
+5. Reproduce experiments
 
 ***
 
@@ -50,7 +52,8 @@ The remaining of the guide will be structured in the following sections:
     5. Install Python dependencies: `pip install -r core/amber/requirements.txt`
     6. Some of the tests workflows require more dependencies:
         1. `pip install nltk`
-        2. `pip install spacy~=3.2.6` , then `python -m spacy download en_core_web_sm`
+        2. `pip install spacy~=3.2.6` , then `python -m spacy download en_core_web_sm`\
+        3. `pip install Pillow`
     
 
 </details>
