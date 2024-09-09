@@ -18,6 +18,7 @@ GUI) to set breakpoints and conditions, as well as buttons to skip, retry a faul
 free to checkout https://github.com/Texera/texera/tree/yicong-udon branch to view the latest features! **The GUI is much
 easier to use than CLI!**
 
+
 The remaining of the guide will be structured in the following sections:
 
 1. Get Started
@@ -32,6 +33,9 @@ The remaining of the guide will be structured in the following sections:
 
 <details>
   <summary>Prepare Env</summary>
+
+Note: This guide is tested on macOS and Linux. Windows machine should also work, but please let us know of any issues!
+
 
 1. Clone this repo: `git clone https://github.com/Texera/Udon`
 2. Prepare backend:
@@ -243,7 +247,14 @@ For passive transfer:
 </details>
 
 The collected results can be input to [Udon_Experiment_Figures.ipynb](core/experiment-related/Udon_Experiment_Figures.ipynb) to generate Figures.
+
+## Hardware
+As mentioned in the paper:
+For single-machine experiments, we used a virtual machine (VM) on Google Cloud Platform (GCP) with 4 vCPU cores and 32 GB of RAM.
+For multi-machine experiments, we used a cluster consisting of eight instances of the above VM, providing 32 vCPUs and 256 GB of RAM for the cluster.
+The VMs were configured to run on the Ubuntu 20.04 operating system and were connected using a high-speed network interface to enable fast communication between nodes.
 ***
+
 
 ## Acknowledgements
 
