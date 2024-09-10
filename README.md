@@ -1,20 +1,22 @@
 <h1 align="center">Udon: Efficient Debugging of User-Defined Functions in Big Data Systems with Line-by-Line Control</h1>
 
 <img src="core/new-gui/src/assets/logos/full_logo_small.png" alt="texera-logo" width="96px" height="54.5px"/> Udon builds on top of Texera, a collaborative data analytics workflow system.
+[SIGMOD'24 Paper](https://dl.acm.org/doi/10.1145/3626712).
+
 
 ***
 
 ## Before we start….
 
-Udon is a UDF debugger built on top of the data analytical workflow system
+Udon is a User-Defined Function (UDF) debugger built on top of the data analytical workflow system
 called [Texera](https://github.com/Texera/texera). This repo was branched out from Texera back in 07/2023, to maintain
-experimental codebase for Udon. We kept this repo untouched so that it remains the state as when we conducted the
+the experimental codebase for Udon. We kept this repo untouched so that it remains the same state as when we conducted the
 experiments. The instructions are a bit manual as our product is a debugger, which requires many manual usages given its
 nature.
 
-For the past 1 year, Texera (with Udon as a major feature) as evolved greatly, in terms of UI design, workflow
+For the past 1 year, Texera (with Udon as a major feature) has evolved greatly, in terms of UI design, workflow
 executions, and as well as Udon debugger features. The most recent Udon in Texera has a nice graphical user interface (
-GUI) to set breakpoints and conditions, as well as buttons to skip, retry a faulty tuple. If interested, please feel
+GUI) to set breakpoints and conditions, as well as buttons to skip, and retry a faulty tuple. If interested, please feel
 free to checkout https://github.com/Texera/texera/tree/yicong-udon branch to view the latest features! **The GUI is much
 easier to use than CLI!**
 
@@ -73,10 +75,14 @@ Note: This guide is tested on macOS and Linux. Windows machine should also work,
 4. To terminate, execute `./scripts/terminate-daemon.sh` which will stop all services and release all ports.
 </details>
 
+<details>
+  <summary>Interface Introduction</summary>
+  Please refer to [this guide](https://github.com/Texera/texera/wiki/Getting-Started#4-use-texera) for the explanation of the interface (the interface has slightly improved so the guide may not exactly match, but it should be easy to follow).
+</details>
 
 ***
 
-## Udon components
+## Udon Components
 <details>
   <summary>Two-thread execution model</summary>
 Udon executes Python UDFs with a two-thread model.
@@ -106,7 +112,7 @@ processing threads.
 
 <details>
   <summary>Debugger Configurations</summary>
-There are the following configurations:
+There are the following configurations (to be changed in the [DebuggerManager](https://github.com/Texera/Udon/blob/master/core/amber/src/main/python/core/architecture/managers/debug_manager.py)):
 
 | Parameter name              | Type | Default Value | Usage                                                             |
 |-----------------------------|------|---------------|-------------------------------------------------------------------|
@@ -212,16 +218,15 @@ For passive transfer:
 <details>
   <summary>General Steps for One Experiment</summary>
 
-1. On the UI, import one workflow.json into the workspace at one time.
+1. On the UI, import one workflow.json into the workspace at one time. Click this button and choose a workflow json file at a time. ![CleanShot 2024-09-09 at 23 43 39@2x](https://github.com/user-attachments/assets/81f9214b-0181-4a0c-8fbb-9ca8818efe7b)
 2. Change the source operators to scan files from your own path on the UI.
-    1. Click a source operator (e.g., CSV Scan), the property panel will show up on the right-hand side.
+    1. Click a source operator (e.g., CSV Scan), and the property panel will show up on the right-hand side.
     2. Modify the `file path` field to your local file path.
-3. Turn on the corresponding simulated debug command in `main_loop.py` (you do not need to restart the server. the
-   python code changes are read upon every execution). See comments in code for details. Please make sure to turn on one
+3. Turn on the corresponding simulated debug command in `main_loop.py` (you do not need to restart the server. The Python code changes are read upon every execution). See comments in code for details. Please make sure to turn on one
    simulated debug command at one time.
 4. Submit the workflow to execute by clicking the blue Run button on the UI.
-5. You can find execution time report from the logs under `core/log/` , or from the Python UDF console.
-    1. Console: click the Python UDF operator on the UI, a console will show up on the bottom-left. Time will be printed
+5. You can find the execution time report from the logs under `core/log/`, or from the Python UDF console.
+    1. Console: click the Python UDF operator on the UI, and a console will show up on the bottom-left. Time will be printed
        out there.
     2. Logs:
         1. `tail -f core/log/*.log | grep "total time in eval:"`
@@ -240,7 +245,7 @@ For passive transfer:
   on the simulated debug command accordingly.
 - To reproduce Figure 20, load the W3 and feel free to generate larger datasets with TPC-H.
 - To reproduce Figure 21, load the W3 and change the number of workers on the Python UDF operator on the UI.
-    - Click on a Python UDF operator, the property panel will show up on the right-hand side.
+    - Click on a Python UDF operator, and the property panel will show up on the right-hand side.
     - Modify the `Workers` field to any positive integer. Recommended range: 1 - 8 and it depends on your CPU.
 - To reproduce Figure 23, Figure 24 & Figure 26, load the W6 and turn off all simulated breakpoints, turn on the
   simulated debug commands for `ss` (store state), `rs` (request state), and `as` (append state) as needed.
@@ -250,7 +255,7 @@ The collected results can be input to [Udon_Experiment_Figures.ipynb](core/exper
 
 ## Hardware
 As mentioned in the paper:
-For single-machine experiments, we used a virtual machine (VM) on Google Cloud Platform (GCP) with 4 vCPU cores and 32 GB of RAM.
+For single-machine experiments, we used a virtual machine (VM) on the Google Cloud Platform (GCP) with 4 vCPU cores and 32 GB of RAM.
 For multi-machine experiments, we used a cluster consisting of eight instances of the above VM, providing 32 vCPUs and 256 GB of RAM for the cluster.
 The VMs were configured to run on the Ubuntu 20.04 operating system and were connected using a high-speed network interface to enable fast communication between nodes.
 ***
