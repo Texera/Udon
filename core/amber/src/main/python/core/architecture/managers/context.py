@@ -7,6 +7,7 @@ from .operator_manager import OperatorManager
 from .pause_manager import PauseManager
 from .state_manager import StateManager
 from .statistics_manager import StatisticsManager
+from .udon_experiment_manager import UdonExperimentManager
 from ..packaging.batch_to_tuple_converter import BatchToTupleConverter
 from ..packaging.tuple_to_batch_converter import TupleToBatchConverter
 
@@ -24,7 +25,8 @@ class Context:
         self.worker_id = worker_id
         self.main_loop = main_loop
         self.input_queue = main_loop._input_queue
-        self.operator_manager = OperatorManager()
+        self.udon_experiment_manager = UdonExperimentManager(worker_id, main_loop)
+        self.operator_manager = OperatorManager(self.udon_experiment_manager)
         self.tuple_processing_manager = TupleProcessingManager()
         self.exception_manager = ExceptionManager()
         self.state_manager = StateManager(
@@ -47,6 +49,7 @@ class Context:
             self.tuple_processing_manager.context_switch_condition,
             self.operator_manager,
         )
+
 
     def close(self):
         self.operator_manager.close()

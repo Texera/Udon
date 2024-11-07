@@ -15,7 +15,7 @@ from core.models import Operator, SourceOperator
 
 
 class OperatorManager:
-    def __init__(self):
+    def __init__(self, udon_experiment_manager):
         self._operator: Optional[Operator] = None
         self._operator_with_bp: Optional[Operator] = None
         self.operator_module_name: Optional[str] = None
@@ -23,6 +23,7 @@ class OperatorManager:
         self._static = False
         self.operator_source_code = ""
         self.scheduled_updates = dict()
+        self.udon_experiment_manager = udon_experiment_manager
 
     @cached_property
     def fs(self) -> FS:
@@ -189,7 +190,7 @@ class OperatorManager:
         code_after = old_code[lineno:]
 
         indentation = " " * (len(target_line) - len(target_line.lstrip()))
-        bp_line = f"{indentation}tuple_['{state}'] = {state}"
+        bp_line = f"{indentation}tuple_['{state}'] = {state} * {self.udon_experiment_manager.state_size_factor}"
 
         new_code = "\n".join(code_before + [bp_line, target_line] + code_after)
         return new_code
@@ -213,14 +214,14 @@ class OperatorManager:
         # print(new_code, file=sys.stdout)
         return new_code
 
-    def add_ss(self, lineno, state):
+    def add_ss(self, lineno, state, ratio):
         old_code = self.operator_source_code.splitlines()
         target_line = old_code[lineno - 1]
         code_before = old_code[: lineno - 1]
         code_after = old_code[lineno:]
 
         indentation = " " * (len(target_line) - len(target_line.lstrip()))
-        bp_line = f"{indentation}yield 'store({lineno}, {state})'"
+        bp_line = f"{indentation}import random; yield ('store({lineno}, {state})' if random.random() <= {ratio} else None)"
 
         new_code = "\n".join(code_before + [bp_line, target_line] + code_after)
 
@@ -228,9 +229,9 @@ class OperatorManager:
 
     def schedule_update_code(self, when: str, change: str):
         if change[:2] == "ss":  # store state
-            ss, lineno, state = change.split()
+            ss, lineno, state, ratio = change.split()
             self.scheduled_updates[when] = (
-                self.add_ss(int(lineno), state),
+                self.add_ss(int(lineno), state, ratio),
                 self.operator.is_source,
             )
 

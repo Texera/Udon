@@ -31,6 +31,21 @@ class DebugManager:
         )
         self.debugger = DebugManager.DEBUGGER
 
+        from functools import wraps
+        import time
+        def timeit(func, target):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                start = time.perf_counter()
+                result = func(*args, **kwargs)
+                end = time.perf_counter()
+                target.breakpoint_check_time += end - start
+                return result
+            return wrapper
+        self.breakpoint_check_time = 0
+        # monkey patch the debugger for measuring breakpoint check time.
+        self.debugger.break_here = timeit(self.debugger.break_here, self)
+
         # Customized prompt, we can design our prompt for the debugger.
         self.debugger.prompt = ""
         self.breakpoints_managed = set()

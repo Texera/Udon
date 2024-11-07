@@ -13,9 +13,12 @@ class StateRequestHandler(Handler):
 
     def __call__(self, context: Context, command: cmd, *args, **kwargs):
         state_key = (command.tuple_id, str(command.line_no), command.state_name)
-        state = context.debug_manager.states[state_key]
+        state = context.debug_manager.states.get(state_key)
 
         # the state can only be request once and cleared after the request.
-        del context.debug_manager.states[state_key]
+        try:
+            del context.debug_manager.states[state_key]
+        except KeyError:
+            pass
 
         return StateReturn(bytes=pickle.dumps(state))

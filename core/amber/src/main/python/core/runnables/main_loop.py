@@ -1,12 +1,12 @@
 import datetime
 import threading
+import time
 import traceback
 import typing
-from typing import Iterator, Optional, Union
-
 from loguru import logger
 from overrides import overrides
 from pampy import match
+from typing import Iterator, Optional, Union
 
 from core.architecture.managers.context import Context
 from core.architecture.managers.pause_manager import PauseType
@@ -41,12 +41,11 @@ from proto.edu.uci.ics.amber.engine.common import (
     ControlPayloadV2,
     ReturnInvocationV2,
 )
-import time
 
 
 class MainLoop(StoppableQueueBlockingRunnable):
     def __init__(
-        self, worker_id: str, input_queue: InternalQueue, output_queue: InternalQueue
+            self, worker_id: str, input_queue: InternalQueue, output_queue: InternalQueue
     ):
         super().__init__(self.__class__.__name__, queue=input_queue)
         self._input_queue: InternalQueue = input_queue
@@ -60,7 +59,6 @@ class MainLoop(StoppableQueueBlockingRunnable):
         threading.Thread(
             target=self.data_processor.run, daemon=True, name="data_processor_thread"
         ).start()
-        self.main_loop_start_time = time.time()
 
     def complete(self) -> None:
         """
@@ -78,12 +76,7 @@ class MainLoop(StoppableQueueBlockingRunnable):
             ActorVirtualIdentity(name="CONTROLLER"), control_command
         )
         self.context.close()
-        import bdb
-
-        logger.info("total time in eval: " + str(bdb.total_time))
-        logger.info(
-            "total time of operator: " + str(time.time() - self.main_loop_start_time)
-        )
+        self.context.udon_experiment_manager.close_log()
 
     def _check_and_process_control(self) -> None:
         """
@@ -96,8 +89,8 @@ class MainLoop(StoppableQueueBlockingRunnable):
         stage while processing a DataElement.
         """
         while (
-            not self._input_queue.is_control_empty()
-            or self.context.pause_manager.is_paused()
+                not self._input_queue.is_control_empty()
+                or self.context.pause_manager.is_paused()
         ):
             next_entry = self.interruptible_get()
             self._process_control_element(next_entry)
@@ -106,6 +99,8 @@ class MainLoop(StoppableQueueBlockingRunnable):
     def pre_start(self) -> None:
         self.context.state_manager.assert_state(WorkerState.UNINITIALIZED)
         self.context.state_manager.transit_to(WorkerState.READY)
+        self.context.udon_experiment_manager.set_log_file_name(self.context.worker_id)
+        self.context.udon_experiment_manager.start_logging()
 
     @overrides
     def receive(self, next_entry: QueueElement) -> None:
@@ -118,7 +113,7 @@ class MainLoop(StoppableQueueBlockingRunnable):
                     2. a DataElement.
         """
         if isinstance(
-            next_entry, DataElement
+                next_entry, DataElement
         ) and self.context.state_manager.confirm_state(WorkerState.READY):
             # add simulated debug comments here - for experimental purpose
 
@@ -127,63 +122,7 @@ class MainLoop(StoppableQueueBlockingRunnable):
             # add a breakpoint
             # self.simulate_debug_command("b linenum[, condition]")
 
-            # change from ["W1", "W2", "W3", "W4", "W5", "W6Passive", "W6Active"]
-            test = "W4"
-
-            if test == "W5":
-                # For W1:
-                self.simulate_debug_command(
-                    "b 50, 'Udon' in tuple_['text'] and 'welcome' in tokens"
-                )
-
-            elif test == "W2":
-                # For W2:
-                self.simulate_debug_command(
-                    "b 26, 'Udon' in tuple_['text'] and 'welcome' in tokens"
-                )
-
-            elif test == "W3":
-                # For W3:
-                self.simulate_debug_command(
-                    "b 9, tuple_['column-5'] > 10"
-                )
-
-            elif test == "W4":
-                # For W4:
-                if "fc88c19f-1f8a-4c7e-8578-8272952c47c8" not in self.context.worker_id: # only break for Image Rotator
-                    self.simulate_debug_command(
-                        "b 18, H > 400"
-                    )
-
-            elif test == "W5":
-                # For W5:
-                self.simulate_debug_command(
-                    "b 23, sum(1 for token in doc if token.pos_ == 'NOUN') > 10"
-                )
-
-            elif "W6" in test:
-                # For state transfer between multiple operators
-                upstream = "PythonUDFV2-operator-21e8857b-8c1b-4cc0-9b88-03026d791e2a-main-0"
-                downstream = "PythonUDFV2-operator-e6e9797a-fe9d-444a-bc43-1f28f42b9f03-main-0"
-
-                if "Passive" in test:
-                    # For W6 passive transfer (Store state + Request State)
-
-                    if upstream in self.context.worker_id:
-                        self.simulate_debug_command(
-                            "ss 51 tokens"
-                        )
-                    if downstream in self.context.worker_id:
-                        self.simulate_debug_command(
-                            f"rs 17 51 tokens {self.context.worker_id.split('-')[0]}-{upstream}"
-                        )
-                else:
-                    #For W6 active transfer (Append State):
-                    if upstream in self.context.worker_id:
-                        self.simulate_debug_command(
-                            "as 51 tokens"
-                        )
-            pass
+            self.context.udon_experiment_manager.add_simulated_breakpoint()
 
         match(
             next_entry,
@@ -194,7 +133,7 @@ class MainLoop(StoppableQueueBlockingRunnable):
         )
 
     def process_control_payload(
-        self, tag: ActorVirtualIdentity, payload: ControlPayloadV2
+            self, tag: ActorVirtualIdentity, payload: ControlPayloadV2
     ) -> None:
         """
         Process the given ControlPayload with the tag.
@@ -219,6 +158,9 @@ class MainLoop(StoppableQueueBlockingRunnable):
         DataElement.
         """
         if isinstance(self.context.tuple_processing_manager.current_input, Tuple):
+            tuple_count = self.context.statistics_manager.get_statistics()[0]
+            if isinstance(self.context.tuple_processing_manager.current_input, Tuple) and tuple_count == 0:
+                self.main_loop_start_time = self.last_log_time = time.perf_counter()
             self.context.statistics_manager.increase_input_tuple_count()
         self.context.operator_manager.apply_available_code_update()
         for output_tuple in self.process_tuple_with_udf():
@@ -226,11 +168,19 @@ class MainLoop(StoppableQueueBlockingRunnable):
             if output_tuple is not None:
                 self.context.statistics_manager.increase_output_tuple_count()
                 for (
-                    to,
-                    batch,
+                        to,
+                        batch,
                 ) in self.context.tuple_to_batch_converter.tuple_to_batch(output_tuple):
                     batch.schema = self.context.operator_manager.operator.output_schema
                     self._output_queue.put(DataElement(tag=to, payload=batch))
+
+        tuple_count = self.context.statistics_manager.get_statistics()[0]
+        if isinstance(self.context.tuple_processing_manager.current_input,
+                      Tuple) and tuple_count % self.context.udon_experiment_manager.tuple_interval == 0 and tuple_count != 0:
+            end = time.perf_counter()
+            self.context.udon_experiment_manager.log(
+                f"{tuple_count}, {end - self.last_log_time}, {end - self.main_loop_start_time}, {self.context.debug_manager.breakpoint_check_time}\n")
+            self.last_log_time = end
 
     def process_tuple_with_udf(self) -> Iterator[Optional[Tuple]]:
         """
@@ -299,7 +249,7 @@ class MainLoop(StoppableQueueBlockingRunnable):
             )
 
     def _process_sender_change_marker(
-        self, sender_change_marker: SenderChangeMarker
+            self, sender_change_marker: SenderChangeMarker
     ) -> None:
         """
         Upon receipt of a SenderChangeMarker, change the current input link to the
@@ -398,7 +348,7 @@ class MainLoop(StoppableQueueBlockingRunnable):
         """
         self._check_and_report_print(force_flush=True)
         if self.context.state_manager.confirm_state(
-            WorkerState.RUNNING, WorkerState.READY
+                WorkerState.RUNNING, WorkerState.READY
         ):
             self.context.pause_manager.record_request(PauseType.USER_PAUSE, True)
             self._input_queue.disable_data()
@@ -538,4 +488,4 @@ class MainLoop(StoppableQueueBlockingRunnable):
                 (tuple_id, lineno, state_name)
             ] = self.context.tuple_processing_manager.output_iterator.gi_frame.f_locals[
                 state_name
-            ]
+            ] * self.context.udon_experiment_manager.state_size_factor
