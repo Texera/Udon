@@ -57,10 +57,10 @@ Note: This guide is tested on macOS and Linux. Windows machine should also work,
     4. **Important** Find out your Python executable path: `which python` and enter it into `core/amber/src/main/resources/python_udf.conf` -> `path` field
     5. Install Python dependencies: `pip install -r core/amber/requirements.txt`
     6. Some of the tests workflows require more dependencies:
-        1. `pip install nltk`
-        2. `pip install spacy~=3.2.6` , then `python -m spacy download en_core_web_sm`\
-        3. `pip install Pillow`
-    
+        1. `pip install nltk`, then `python -m nltk.downloader stopwords`, `python -m nltk.downloader punkt_tab`, `python -m nltk.downloader wordnet`
+        2. `pip install spacy==3.2.6` , then `python -m spacy download en_core_web_sm`, `python -m spacy download en_core_web_lg`
+        3. `pip install Pillow` 
+        4. `pip install textblob`
 
 </details>
 
@@ -98,6 +98,14 @@ Udon manages the integrated debugger with
 a [DebuggerManager](https://github.com/Texera/Udon/blob/master/core/amber/src/main/python/core/architecture/managers/debug_manager.py).
 
 </details>
+
+<details>
+  <summary>Udon Experiment Manager</summary>
+For experiment settings, we have a [UdonExperimentManager](https://github.com/Texera/Udon/blob/master/core/amber/src/main/python/core/architecture/managers/udon_experiment_manager.py).
+You can find the configurations for each experiments and figures in this file.
+
+</details>
+
 
 <details>
   <summary>SingleBlockingIO</summary>
