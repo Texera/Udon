@@ -129,7 +129,7 @@ class UdonExperimentManager:
         elif self.test == "W5":
             # For W5:
             self.main_loop.simulate_debug_command(
-                "b 23, sum(1 for token in doc if token.pos_ == 'NOUN') > 3"
+                "b 23, sum(1 for token in doc if token.pos_ == 'NOUN') > 3 and 'hello' in tuple_['text']"
             )
 
         elif "W6" in self.test:
