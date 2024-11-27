@@ -123,7 +123,7 @@ class UdonExperimentManager:
             # For W4:
             if "fc88c19f-1f8a-4c7e-8578-8272952c47c8" not in self.worker_id:  # only break for Image Rotator
                 self.main_loop.simulate_debug_command(
-                    "b 18, H > 400"
+                    "b 18, H > 400 and tuple_['image'] is not None"
                 )
 
         elif self.test == "W5":
